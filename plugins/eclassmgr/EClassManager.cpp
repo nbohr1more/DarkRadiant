@@ -6,6 +6,7 @@
 #include "ieventmanager.h"
 #include "icommandsystem.h"
 #include "imainframe.h"
+#include "iradiant.h"
 #include "iuimanager.h"
 #include "ifilesystem.h"
 #include "archivelib.h"
@@ -132,7 +133,10 @@ void EClassManager::parseDefFiles()
 
 	{
 		ScopedDebugTimer timer("EntityDefs parsed: ");
-		GlobalFileSystem().forEachFile("def/", "def", *this);
+        GlobalFileSystem().forEachFile("def/", "def", [&](const std::string& filename)
+        {
+            parseFile(filename);
+        });
 	}
 }
 
@@ -301,10 +305,10 @@ void EClassManager::shutdownModule()
 // This takes care of relading the entityDefs and refreshing the scenegraph
 void EClassManager::reloadDefsCmd(const cmd::ArgumentList& args)
 {
-    // Disable screen updates for the scope of this function
-	IScopedScreenUpdateBlockerPtr blocker = GlobalMainFrame().getScopedScreenUpdateBlocker(_("Processing..."), _("Reloading Defs"));
-
-    GlobalEntityClassManager().reloadDefs();
+	GlobalRadiant().performLongRunningOperation([&] (ILongRunningOperation& operation)
+	{
+		reloadDefs();
+	}, _("Reloading Defs"));
 }
 
 // Gets called on VFS initialise
@@ -415,7 +419,7 @@ void EClassManager::parse(TextInputStream& inStr, const std::string& modDir)
     }
 }
 
-void EClassManager::visit(const std::string& filename)
+void EClassManager::parseFile(const std::string& filename)
 {
 	const std::string fullname = "def/" + filename;
 

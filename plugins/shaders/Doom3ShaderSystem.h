@@ -3,6 +3,7 @@
 #include "ishaders.h"
 #include "ifilesystem.h"
 #include "imodule.h"
+#include "iradiant.h"
 #include "icommandsystem.h"
 
 #include <boost/function.hpp>
@@ -46,6 +47,9 @@ class Doom3ShaderSystem
 	// The observers that are attached to this system. These get
 	// notified upon realisation of this class.
 	ModuleObservers _observers;
+
+	// Used to provide feedback to the user during long operations
+	ILongRunningOperation* _currentOperation;
 
 public:
 
@@ -104,8 +108,7 @@ public:
 	/* greebo: Loads an image from disk and creates a basic shader
 	 * object out of it (i.e. only diffuse and editor image are non-empty).
 	 */
-	TexturePtr loadTextureFromFile(const std::string& filename,
-								   const std::string& moduleNames = "GDK");
+	TexturePtr loadTextureFromFile(const std::string& filename);
 
 	ShaderLibrary& getLibrary();
 	GLTextureManager& getTextureManager();

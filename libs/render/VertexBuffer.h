@@ -95,10 +95,22 @@ public:
 
         // Append all vertices
         _vertices.reserve(_vertices.size() + count);
-        for (Iter_T i = begin; i < begin + (count * stride); i += stride)
-        {
-            _vertices.push_back(*i);
-        }
+
+		Iter_T i = begin;
+
+		while (count > 0)
+		{
+			_vertices.push_back(*i);
+
+			if (--count > 0)
+			{
+				i += stride;
+			}
+			else
+			{
+				break;
+			}
+		}
     }
 
     /**
